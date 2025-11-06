@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "title": "iPhone 15 Pro",
+    "description": "Smartphone Apple con chip A17 Pro y cámara de 48 MP",
+    "code": "APL-IP15P",
+    "price": 1499,
+    "status": true,
+    "stock": 15,
+    "category": "smartphone",
+    "thumbnails": ["https://example.com/img/iphone15pro.png"]
+  },
+  {
+    "id": 2,
+    "title": "MacBook Air M3",
+    "description": "Notebook ultradelgada con chip Apple M3 y 512GB SSD",
+    "code": "APL-MBA-M3",
+    "price": 1899,
+    "status": true,
+    "stock": 10,
+    "category": "laptop",
+    "thumbnails": ["https://example.com/img/macbookairm3.png"]
+  },
+  {
+    "id": 3,
+    "title": "Apple Watch Series 10",
+    "description": "Reloj inteligente con pantalla Retina y sensores de salud",
+    "code": "APL-WCH-S10",
+    "price": 699,
+    "status": true,
+    "stock": 25,
+    "category": "wearable",
+    "thumbnails": ["https://example.com/img/applewatchs10.png"]
+  },
+  {
+    "id": 4,
+    "title": "AirPods Pro 2",
+    "description": "Auriculares inalámbricos con cancelación de ruido activa",
+    "code": "APL-APP2",
+    "price": 349,
+    "status": true,
+    "stock": 30,
+    "category": "audio",
+    "thumbnails": ["https://example.com/img/airpodspro2.png"]
+  }
+]
