@@ -1,0 +1,280 @@
+:root {
+    --bg: #0f1724;
+    --card: #0b1220;
+    --muted: #9aa4b2;
+    --accent: #5eead4;
+    --accent-2: #60a5fa;
+    --glass: rgba(255, 255, 255, 0.04);
+    --radius: 12px;
+}
+
+* {
+    box-sizing: border-box
+}
+
+body {
+    margin: 0;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: linear-gradient(180deg, #071124 0%, #071b2a 60%);
+    color: #e6eef6;
+    -webkit-font-smoothing: antialiased;
+    padding: 28px;
+}
+
+h1,
+h2 {
+    margin: 0 0 10px 0;
+    font-weight: 700;
+    color: var(--accent-2)
+}
+
+hr {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    margin: 22px 0
+}
+
+.main-content {
+    margin-top: 20px
+}
+
+.page-title {
+    font-size: 30px;
+    margin-bottom: 18px;
+    color: var(--accent)
+}
+
+.product-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.product-text {
+    font-size: 15px;
+    color: var(--muted)
+}
+
+.product-img {
+    width: 84px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.03)
+}
+
+button {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--accent-2);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(96, 165, 250, 0.08)
+}
+
+button.delete-btn {
+    background: linear-gradient(90deg, #fb7185, #f97316);
+    border: none;
+    color: white
+}
+
+button.delete-btn:hover {
+    filter: brightness(.95);
+    transform: translateY(-2px)
+}
+
+form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap
+}
+
+input {
+    background: var(--glass);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 8px 10px;
+    border-radius: 8px;
+    color: var(--accent-2)
+}
+
+section {
+    margin-bottom: 28px
+}
+
+.product-info {
+    font-size: 15px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px
+}
+
+.product-info .price {
+    font-weight: 700;
+    color: var(--accent);
+    margin-left: 6px
+}
+
+.product-info .season {
+    color: rgba(255, 255, 255, 0.35)
+}
+
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 18px;
+    margin-top: 18px
+}
+
+.product-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+    border-radius: var(--radius);
+    padding: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: transform .18s ease, box-shadow .18s ease
+}
+
+.product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 40px rgba(2, 6, 23, 0.6)
+}
+
+.product-text .team {
+    font-size: 18px;
+    color: #fff
+}
+
+.product-text .player {
+    color: var(--muted)
+}
+
+.product-text .dash {
+    margin: 0 6px;
+    color: rgba(255, 255, 255, 0.06)
+}
+
+.details {
+    margin-top: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px
+}
+
+.details .price {
+    font-weight: 700;
+    color: var(--accent)
+}
+
+.realtime-section,
+.form-section {
+    margin-bottom: 22px
+}
+
+.subtitle {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: var(--accent-2)
+}
+
+.form-inline {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px
+}
+
+.form-inline input {
+    flex: 1
+}
+
+.products-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px
+}
+
+.delete-btn {
+    background: linear-gradient(90deg, #ef4444, #f97316);
+    color: #fff;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer
+}
+
+.delete-btn:hover {
+    opacity: .95
+}
+
+.navbar {
+    background: linear-gradient(90deg, #071124, #0b1220);
+    padding: 14px 22px;
+    border-radius: 14px
+}
+
+.nav-container {
+    display: flex;
+    gap: 18px;
+    align-items: center
+}
+
+.nav-link {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 15px;
+    padding: 8px 10px;
+    border-radius: 8px
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--accent-2)
+}
+
+@media (max-width:720px) {
+    .cards-container {
+        grid-template-columns: 1fr
+    }
+
+    .nav-container {
+        flex-direction: row;
+        gap: 10px
+    }
+
+    body {
+        padding: 16px
+    }
+}
+
+@media (max-width:420px) {
+    .product-img {
+        width: 64px;
+        height: 48px
+    }
+
+    .page-title {
+        font-size: 22px
+    }
+}
+
+.subtitle small {
+    color: var(--muted);
+    font-weight: 400
+}

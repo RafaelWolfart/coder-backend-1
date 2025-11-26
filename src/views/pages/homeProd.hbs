@@ -1,0 +1,30 @@
+<h1 class="page-title">{{title}}</h1>
+
+<div class="cards-container">
+  {{#each products}}
+    <div class="product-card">
+
+      {{#if (getFirstImage thumbnails)}}
+        <img
+          class="product-img"
+          src="{{getFirstImage thumbnails}}"
+          alt="{{title}}"
+        />
+      {{/if}}
+
+      <div class="product-text">
+        <strong class="product-title">{{title}}</strong>
+
+        <p class="product-description">
+          {{description}}
+        </p>
+
+        <div class="details">
+          <span class="category">Categoría: {{category}}</span>
+          <span class="price">Precio: ${{price}}</span>
+          <span class="stock">Stock: {{stock}}</span>
+        </div>
+      </div>
+    </div>
+  {{/each}}
+</div>

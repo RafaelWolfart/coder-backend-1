@@ -7,7 +7,7 @@
     "price": 1499,
     "status": true,
     "stock": 15,
-    "category": "smartphone",
+    "category": "celular",
     "thumbnails": ["https://example.com/img/iphone15pro.png"]
   },
   {
@@ -18,7 +18,7 @@
     "price": 1899,
     "status": true,
     "stock": 10,
-    "category": "laptop",
+    "category": "notebook",
     "thumbnails": ["https://example.com/img/macbookairm3.png"]
   },
   {
@@ -29,7 +29,7 @@
     "price": 699,
     "status": true,
     "stock": 25,
-    "category": "wearable",
+    "category": "smartwatch",
     "thumbnails": ["https://example.com/img/applewatchs10.png"]
   },
   {
@@ -40,7 +40,7 @@
     "price": 349,
     "status": true,
     "stock": 30,
-    "category": "audio",
+    "category": "auriculares",
     "thumbnails": ["https://example.com/img/airpodspro2.png"]
   }
 ]

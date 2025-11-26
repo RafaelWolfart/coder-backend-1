@@ -1,13 +1,11 @@
-<h1 class="page-title">Productos en tiempo real</h1>
+<h1 class="page-title">Productos Apple en tiempo real</h1>
 
 <section class="realtime-section">
-
   <h2 class="subtitle">Listado en tiempo real</h2>
 
   <div id="products-container" class="products-list">
-
+    <!-- Productos se renderizan por WebSocket -->
   </div>
-
 </section>
 
 <hr />
@@ -16,9 +14,17 @@
   <h2 class="subtitle">Agregar producto</h2>
 
   <form id="createForm" class="form-inline">
-    <input type="text" name="team" placeholder="Equipo" required />
-    <input type="text" name="player" placeholder="Jugador" required />
+    <input type="text" name="title" placeholder="Título" required />
+    <input type="text" name="description" placeholder="Descripción" required />
+    <input type="text" name="code" placeholder="Código único" required />
     <input type="number" name="price" placeholder="Precio" required />
+    <input type="number" name="stock" placeholder="Stock" required />
+    <input type="text" name="category" placeholder="Categoría" required />
+    <input
+      type="text"
+      name="thumbnails"
+      placeholder="URL de imagen (opcional)"
+    />
 
     <button type="submit">Crear producto</button>
   </form>
@@ -31,9 +37,9 @@
 
   <form id="deleteForm" class="form-inline">
     <input
-      type="number"
+      type="text"
       name="productId"
-      placeholder="ID del producto"
+      placeholder="ID del producto (UUID)"
       required
     />
     <button type="submit" class="delete-btn">Eliminar</button>
@@ -41,4 +47,4 @@
 </section>
 
 <script src="/socket.io/socket.io.js"></script>
-<script src="/public/js/realTime.js"></script>
+<script src="/js/realTimeProd.js"></script>
