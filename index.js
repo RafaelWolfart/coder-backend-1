@@ -1,6 +1,7 @@
 const app = require("./src/app");
 const http = require("http");
 const { Server } = require("socket.io");
+const { PORT } = require("./src/config/config");
 
 const ProductManager = require("./src/managers/ProductManager");
 const productManager = new ProductManager();
@@ -12,48 +13,59 @@ const io = new Server(server);
 io.on("connection", async (socket) => {
   console.log("Cliente conectado vía WebSocket");
 
-  const products = await productManager.getProducts();
-  socket.emit("updateProducts", products);
+  // Enviar productos iniciales
+  try {
+    const products = await productManager.getProducts();
+    socket.emit("updateProducts", products.payload);
+  } catch (error) {
+    console.error("Error al obtener productos:", error);
+  }
 
+  // Crear producto
   socket.on("crearProducto", async (data) => {
-    console.log("Producto Apple recibido:", data);
+    console.log("Producto recibido:", data);
 
     try {
-      let products = await productManager.getProducts();
+      const newProduct = await productManager.addProduct({
+        title: data.title || data.name,
+        description: data.description || "",
+        code: data.code,
+        price: Number(data.price) || 0,
+        status: data.status !== undefined ? data.status : true,
+        stock: Number(data.stock) || 0,
+        category: data.category || "general",
+        thumbnails: data.thumbnails || [],
+      });
 
-      const maxId =
-        products.length > 0 ? Math.max(...products.map((p) => p.id)) : 0;
+      // Emitir actualización a todos los clientes
+      const products = await productManager.getProducts();
+      io.emit("updateProducts", products.payload);
 
-      const newProduct = {
-        id: maxId + 1,
-        name: data.name,
-        description: data.description,
-        price: Number(data.price),
-      };
-
-      products.push(newProduct);
-
-      await productManager.saveProducts(products);
-
-      io.emit("updateProducts", products);
+      socket.emit("success", {
+        message: "Producto creado exitosamente",
+        product: newProduct,
+      });
     } catch (error) {
-      console.error(" Error al crear producto:", error);
+      console.error("Error al crear producto:", error);
+      socket.emit("error", { message: error.message });
     }
   });
 
+  // Eliminar producto
   socket.on("eliminarProducto", async (productId) => {
     console.log("Eliminando producto ID:", productId);
 
     try {
-      let products = await productManager.getProducts();
+      await productManager.deleteProduct(productId);
 
-      products = products.filter((p) => p.id !== productId);
+      // Emitir actualización a todos los clientes
+      const products = await productManager.getProducts();
+      io.emit("updateProducts", products.payload);
 
-      await productManager.saveProducts(products);
-
-      io.emit("updateProducts", products);
+      socket.emit("success", { message: "Producto eliminado exitosamente" });
     } catch (error) {
-      console.error(" Error al eliminar producto:", error);
+      console.error("Error al eliminar producto:", error);
+      socket.emit("error", { message: error.message });
     }
   });
 
@@ -61,8 +73,6 @@ io.on("connection", async (socket) => {
     console.log("Cliente desconectado");
   });
 });
-
-const PORT = 8080;
 
 server.listen(PORT, () =>
   console.log(`Servidor HTTP/WS (Socket.io) corriendo en puerto ${PORT}`)

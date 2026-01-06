@@ -12,12 +12,17 @@ createForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
   const product = {
-    name: createForm.name.value,
+    title: createForm.name.value,
     category: createForm.category.value,
     price: Number(createForm.price.value),
+    description: "",
+    code: "",
+    stock: 0,
+    status: true,
+    thumbnails: [],
   };
 
-  console.log("Enviando producto Apple:", product);
+  console.log("Enviando producto:", product);
 
   socket.emit("crearProducto", product);
 
@@ -30,7 +35,7 @@ if (deleteForm) {
   deleteForm.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const productId = Number(deleteForm.productId.value);
+    const productId = deleteForm.productId.value;
 
     console.log("Solicitando eliminación ID:", productId);
 
@@ -41,7 +46,7 @@ if (deleteForm) {
 }
 
 socket.on("updateProducts", (products) => {
-  console.log("Lista actualizada de productos Apple:", products);
+  console.log("Lista actualizada de productos:", products);
 
   const container = document.getElementById("products-container");
   container.innerHTML = "";
@@ -52,7 +57,7 @@ socket.on("updateProducts", (products) => {
 
     card.innerHTML = `
       <div class="product-info">
-        <strong>${p.id}. ${p.name}</strong> — ${p.category}
+        <strong>${p.id}. ${p.title}</strong> — ${p.category}
         <span class="price">$${p.price}</span>
       </div>
 
@@ -68,7 +73,7 @@ socket.on("updateProducts", (products) => {
 
   buttons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      const id = Number(btn.dataset.id);
+      const id = btn.dataset.id;
       console.log("Eliminando producto ID:", id);
 
       socket.emit("eliminarProducto", id);

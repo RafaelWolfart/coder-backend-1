@@ -1,7 +1,7 @@
 {
   "name": "server-backend",
-  "version": "1.0.0",
-  "description": "Mi primer servidor",
+  "version": "2.0.0",
+  "description": "API REST con MongoDB - Productos y Carritos",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -13,8 +13,11 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
     "express": "^5.1.0",
     "express-handlebars": "^8.0.4",
+    "mongoose": "^8.21.0",
     "socket.io": "^4.8.1"
   },
   "repository": {

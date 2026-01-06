@@ -1,0 +1,136 @@
+<h1 class="page-title">Catálogo de Productos</h1>
+
+<!-- Formulario de búsqueda y filtros -->
+<div class="search-container">
+  <form method="GET" action="/products" class="search-form">
+    <div class="search-inputs">
+      <!-- Filtro de categoría -->
+      <select name="query" class="search-select">
+        <option value="">Todas las categorías</option>
+        <option value="celular">Celulares</option>
+        <option value="notebook">Notebooks</option>
+        <option value="smartwatch">Smart Watches</option>
+        <option value="auriculares">Auriculares</option>
+      </select>
+
+      <!-- Ordenamiento -->
+      <select name="sort" class="search-select">
+        <option value="">Sin ordenar</option>
+        <option value="asc">Precio: Menor a Mayor</option>
+        <option value="desc">Precio: Mayor a Menor</option>
+      </select>
+
+      <!-- Límite por página -->
+      <input
+        type="number"
+        name="limit"
+        placeholder="Productos por página"
+        value="{{limit}}"
+        min="1"
+        max="50"
+        class="search-input"
+      />
+
+      <button type="submit" class="search-btn">Buscar</button>
+    </div>
+  </form>
+</div>
+
+<!-- Grid de productos -->
+<div class="cards-container">
+  {{#each payload}}
+    <div class="product-card">
+      {{#if (getFirstImage thumbnails)}}
+        <img
+          class="product-img"
+          src="{{getFirstImage thumbnails}}"
+          alt="{{title}}"
+        />
+      {{else}}
+        <div class="product-img-placeholder">Sin imagen</div>
+      {{/if}}
+
+      <div class="product-text">
+        <strong class="product-title">{{title}}</strong>
+        <p class="product-description">{{description}}</p>
+
+        <div class="details">
+          <span class="category">{{category}}</span>
+          <span class="price">{{formatPrice price}}</span>
+        </div>
+
+        <div class="product-actions">
+          <a href="/products/{{_id}}" class="btn-detail">Ver Detalles</a>
+          <button class="btn-cart" onclick="addToCart('{{_id}}')">
+            Agregar al Carrito
+          </button>
+        </div>
+      </div>
+    </div>
+  {{/each}}
+</div>
+
+<!-- Paginación -->
+<div class="pagination">
+  <div class="pagination-info">
+    <p>Página {{page}} de {{totalPages}}</p>
+  </div>
+
+  <div class="pagination-buttons">
+    {{#if hasPrevPage}}
+      <a href="{{prevLink}}" class="pagination-btn">← Anterior</a>
+    {{/if}}
+
+    <!-- Links a páginas -->
+    <div class="pagination-pages">
+      {{#each (range 1 totalPages)}}
+        {{#if (eq this ../page)}}
+          <span class="pagination-page active">{{this}}</span>
+        {{else}}
+          <a href="/products?page={{this}}&limit={{../limit}}" class="pagination-page">
+            {{this}}
+          </a>
+        {{/if}}
+      {{/each}}
+    </div>
+
+    {{#if hasNextPage}}
+      <a href="{{nextLink}}" class="pagination-btn">Siguiente →</a>
+    {{/if}}
+  </div>
+</div>
+
+<script>
+  // Función para agregar al carrito
+  function addToCart(productId) {
+    // Obtener cartId del localStorage o crear uno
+    let cartId = localStorage.getItem("cartId");
+
+    if (!cartId) {
+      // Si no existe carrito, crear uno
+      fetch("/api/carts", { method: "POST" })
+        .then((res) => res.json())
+        .then((data) => {
+          cartId = data.cart._id;
+          localStorage.setItem("cartId", cartId);
+          addProductToCart(cartId, productId);
+        });
+    } else {
+      addProductToCart(cartId, productId);
+    }
+  }
+
+  function addProductToCart(cartId, productId) {
+    fetch(`/api/carts/${cartId}/products/${productId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ quantity: 1 }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        alert("Producto agregado al carrito");
+        console.log("Carrito actualizado:", data);
+      })
+      .catch((error) => console.error("Error:", error));
+  }
+</script>

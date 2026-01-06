@@ -1,6 +1,22 @@
 <nav class="navbar">
   <div class="nav-container">
     <a href="/" class="nav-link">Home</a>
-    <a href="/realtimeproducts" class="nav-link">Real Time Product</a>
+    <a href="/products" class="nav-link">📦 Catálogo</a>
+    <a href="/realtimeproducts" class="nav-link">⚡ Real Time</a>
+    <a href="#" id="cart-link" class="nav-link">🛒 Carrito</a>
   </div>
 </nav>
+
+<script>
+  // Inicializar carrito si no existe async function initializeCart() { let
+  cartId = localStorage.getItem('cartId'); if (!cartId) { try { const res =
+  await fetch('/api/carts', { method: 'POST' }); const data = await res.json();
+  if (data.payload && data.payload._id) { cartId = data.payload._id;
+  localStorage.setItem('cartId', cartId); } } catch (error) {
+  console.error('Error al crear carrito:', error); } } } // Inicializar carrito
+  al cargar initializeCart(); // Cargar carrito desde localStorage
+  document.getElementById('cart-link').addEventListener('click', (e) => {
+  e.preventDefault(); const cartId = localStorage.getItem('cartId'); if (cartId)
+  { window.location.href = `/carts/${cartId}`; } else { alert('Error: No se pudo
+  crear el carrito. Recarga la página.'); } });
+</script>

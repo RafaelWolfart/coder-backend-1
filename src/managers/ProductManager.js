@@ -1,110 +1,161 @@
-const fs = require("fs");
-const path = require("path");
+const Product = require("../models/Product.model");
 
 class ProductManager {
-  constructor() {
-    this.path = path.join(__dirname, "../../data/products.json");
-  }
-
-  async getProducts() {
+  async getProducts(options = {}) {
     try {
-      const data = await fs.promises.readFile(this.path, "utf-8");
-      return JSON.parse(data);
-    } catch (error) {
-      console.error("Error al leer los productos:", error);
-      return [];
-    }
-  }
-  async getProductById(pid) {
-    try {
-      const data = await this.getProducts();
+      const { limit = 10, page = 1, query, sort } = options;
 
-      const product = data.find((p) => p.id === pid);
+      // Convertir a números
+      const pageNum = Math.max(1, parseInt(page));
+      const limitNum = Math.max(1, parseInt(limit));
 
-      if (!product) {
-        return null;
+      // Construir filtro
+      let filter = {};
+
+      if (query) {
+        // Si hay query, buscar por categoría o por disponibilidad
+        if (query === "available") {
+          filter.status = true;
+        } else {
+          // Buscar por categoría (case-insensitive)
+          filter.category = { $regex: query, $options: "i" };
+        }
       }
 
-      return product;
+      // Construir ordenamiento
+      let sortOptions = {};
+      if (sort === "asc") {
+        sortOptions.price = 1; // Ascendente
+      } else if (sort === "desc") {
+        sortOptions.price = -1; // Descendente
+      }
+
+      // Contar total de documentos
+      const totalProducts = await Product.countDocuments(filter);
+      const totalPages = Math.ceil(totalProducts / limitNum);
+
+      // Validar página
+      if (pageNum > totalPages && totalPages > 0) {
+        throw new Error(`Página ${pageNum} no existe`);
+      }
+
+      // Calcular skip
+      const skip = (pageNum - 1) * limitNum;
+
+      // Ejecutar consulta
+      const products = await Product.find(filter)
+        .sort(sortOptions)
+        .limit(limitNum)
+        .skip(skip);
+
+      // Construir links
+      const baseUrl = "/api/products";
+      const queryString = `limit=${limitNum}&sort=${sort || ""}`.replace(
+        /&sort=$/,
+        ""
+      );
+      const categoryFilter = query ? `&query=${query}` : "";
+
+      const prevPage = pageNum > 1 ? pageNum - 1 : null;
+      const nextPage = pageNum < totalPages ? pageNum + 1 : null;
+
+      const prevLink =
+        prevPage !== null
+          ? `${baseUrl}?page=${prevPage}&${queryString}${categoryFilter}`
+          : null;
+      const nextLink =
+        nextPage !== null
+          ? `${baseUrl}?page=${nextPage}&${queryString}${categoryFilter}`
+          : null;
+
+      // Retornar respuesta profesional
+      return {
+        status: "success",
+        payload: products,
+        totalPages,
+        prevPage,
+        nextPage,
+        page: pageNum,
+        hasPrevPage: prevPage !== null,
+        hasNextPage: nextPage !== null,
+        prevLink,
+        nextLink,
+      };
     } catch (error) {
-      console.error("Error al obtener el producto por ID:", error);
+      console.error("Error al obtener productos:", error);
       throw error;
     }
   }
 
-  async addProduct(product) {
+  // Obtener un producto por ID
+  async getProductById(pid) {
     try {
-      const data = await this.getProducts();
+      const product = await Product.findById(pid);
+      return product || null;
+    } catch (error) {
+      console.error("Error al obtener producto por ID:", error);
+      throw error;
+    }
+  }
 
-      const maxId = data.length > 0 ? Math.max(...data.map((p) => p.id)) : 0;
-      const newProduct = {
-        id: maxId + 1,
-        ...product,
-      };
-      data.push(newProduct);
+  // Agregar un nuevo producto
+  async addProduct(productData) {
+    try {
+      // Validar que no exista el código
+      const existingProduct = await Product.findOne({ code: productData.code });
+      if (existingProduct) {
+        throw new Error(`El código ${productData.code} ya existe`);
+      }
 
-      await fs.promises.writeFile(this.path, JSON.stringify(data, null, 2));
+      const product = new Product(productData);
+      await product.save();
+
       return {
         message: "Producto agregado exitosamente",
-        product: newProduct,
+        product,
       };
     } catch (error) {
-      console.error("Error al agregar el producto:", error);
+      console.error("Error al agregar producto:", error);
       throw error;
     }
   }
 
   async updateProduct(pid, updateFields) {
     try {
-      const data = await this.getProducts();
-      const index = data.findIndex((p) => p.id === pid);
+      // No permitir actualizar el ID
+      delete updateFields._id;
 
-      if (index === -1) {
+      const product = await Product.findByIdAndUpdate(pid, updateFields, {
+        new: true, // Retornar documento actualizado
+        runValidators: true,
+      });
+
+      if (!product) {
         throw new Error(`Producto con ID ${pid} no encontrado`);
       }
-      const updateProduct = {
-        ...data[index],
-        ...updateFields,
-        id: data[index].id,
-      };
-      data[index] = updateProduct;
 
-      await fs.promises.writeFile(this.path, JSON.stringify(data, null, 2));
       return {
         message: "Producto actualizado exitosamente",
-        product: updateProduct,
+        product,
       };
     } catch (error) {
-      console.error("Error al actualizar el producto:", error);
+      console.error("Error al actualizar producto:", error);
       throw error;
     }
   }
 
+  // Eliminar un producto por ID
   async deleteProduct(pid) {
     try {
-      const data = await this.getProducts();
+      const product = await Product.findByIdAndDelete(pid);
 
-      const newData = data.filter((p) => p.id !== pid);
-
-      if (data.length === newData.length) {
+      if (!product) {
         throw new Error(`Producto con ID ${pid} no encontrado`);
       }
-
-      await fs.promises.writeFile(this.path, JSON.stringify(newData, null, 2));
 
       return { message: `Producto con ID ${pid} eliminado correctamente` };
     } catch (error) {
-      console.error("Error al eliminar el producto:", error);
-      throw error;
-    }
-  }
-
-  async saveProducts(products) {
-    try {
-      await fs.promises.writeFile(this.path, JSON.stringify(products, null, 2));
-      return true;
-    } catch (error) {
-      console.error("Error al guardar productos:", error);
+      console.error("Error al eliminar producto:", error);
       throw error;
     }
   }

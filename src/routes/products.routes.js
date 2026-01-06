@@ -6,48 +6,64 @@ const productManager = new ProductManager();
 
 router.get("/", async (req, res) => {
   try {
-    const products = await productManager.getProducts();
-    res.status(200).json(products);
+    const { limit, page, query, sort } = req.query;
+
+    const result = await productManager.getProducts({
+      limit,
+      page,
+      query,
+      sort,
+    });
+
+    res.status(200).json(result);
   } catch (error) {
     console.error("Error al obtener los productos:", error);
-    res.status(500).json({ error: "Error al obtener los productos" });
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
   }
 });
 
 router.get("/:pid", async (req, res) => {
   try {
-    const pid = parseInt(req.params.pid);
+    const { pid } = req.params;
+
+    // Validar ObjectId
+    if (!pid.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        status: "error",
+        message: "ID de producto inválido",
+      });
+    }
+
     const product = await productManager.getProductById(pid);
 
     if (!product) {
-      return res.status(404).json({ error: "Producto no encontrado" });
+      return res.status(404).json({
+        status: "error",
+        message: "Producto no encontrado",
+      });
     }
 
-    res.status(200).json(product);
+    res.status(200).json({
+      status: "success",
+      payload: product,
+    });
   } catch (error) {
     console.error("Error al obtener producto por ID:", error);
-    res.status(500).json({ error: "Error al obtener el producto" });
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
   }
 });
 
 router.post("/", async (req, res) => {
   try {
-    /*
-      Body esperado:
-      {
-        "title": "iPhone 16",
-        "description": "Nuevo modelo 2025",
-        "code": "APL-IP16",
-        "price": 1599,
-        "status": true,
-        "stock": 20,
-        "category": "smartphone",
-        "thumbnails": ["url1","url2"]
-      }
-    */
-
     const productData = req.body;
 
+    // Campos requeridos
     const requiredFields = [
       "title",
       "description",
@@ -55,71 +71,115 @@ router.post("/", async (req, res) => {
       "price",
       "stock",
       "category",
-      "thumbnails",
     ];
 
-    const missingFields = requiredFields.filter((field) => !productData[field]);
+    const missingFields = requiredFields.filter(
+      (field) => productData[field] === undefined || productData[field] === null
+    );
 
     if (missingFields.length > 0) {
       return res.status(400).json({
-        error: `Faltan los siguientes campos: ${missingFields.join(", ")}`,
+        status: "error",
+        message: `Faltan los siguientes campos: ${missingFields.join(", ")}`,
+      });
+    }
+
+    // Validar tipos
+    if (typeof productData.price !== "number" || productData.price < 0) {
+      return res.status(400).json({
+        status: "error",
+        message: "El precio debe ser un número válido y positivo",
+      });
+    }
+
+    if (typeof productData.stock !== "number" || productData.stock < 0) {
+      return res.status(400).json({
+        status: "error",
+        message: "El stock debe ser un número válido y positivo",
       });
     }
 
     const result = await productManager.addProduct(productData);
-    res.status(201).json(result);
+
+    res.status(201).json({
+      status: "success",
+      message: result.message,
+      product: result.product,
+    });
   } catch (error) {
     console.error("Error en POST /api/products:", error.message);
     res.status(500).json({
-      error: "Error interno del servidor",
-      details: error.message,
+      status: "error",
+      message: error.message,
     });
   }
 });
 
+/**
+ * Actualizar un producto existente
+ */
 router.put("/:pid", async (req, res) => {
   try {
-    const pid = parseInt(req.params.pid);
+    const { pid } = req.params;
     const updateFields = req.body;
 
+    // Validar ObjectId
+    if (!pid.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        status: "error",
+        message: "ID de producto inválido",
+      });
+    }
+
     if (Object.keys(updateFields).length === 0) {
-      return res
-        .status(400)
-        .json({ error: "No se enviaron campos para actualizar" });
+      return res.status(400).json({
+        status: "error",
+        message: "No se enviaron campos para actualizar",
+      });
     }
 
-    const updated = await productManager.updateProduct(pid, updateFields);
+    const result = await productManager.updateProduct(pid, updateFields);
 
-    if (!updated) {
-      return res.status(404).json({ error: "Producto no encontrado" });
-    }
-
-    res.status(200).json(updated);
+    res.status(200).json({
+      status: "success",
+      message: result.message,
+      product: result.product,
+    });
   } catch (error) {
     console.error("Error en PUT /api/products/:pid:", error.message);
     res.status(500).json({
-      error: "Error interno del servidor",
-      details: error.message,
+      status: "error",
+      message: error.message,
     });
   }
 });
 
+/**
+ * Eliminar un producto
+ */
 router.delete("/:pid", async (req, res) => {
   try {
-    const pid = parseInt(req.params.pid);
+    const { pid } = req.params;
+
+    // Validar ObjectId
+    if (!pid.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        status: "error",
+        message: "ID de producto inválido",
+      });
+    }
 
     const result = await productManager.deleteProduct(pid);
 
-    if (!result) {
-      return res.status(404).json({ error: "Producto no encontrado" });
-    }
-
-    res.status(200).json(result);
+    res.status(200).json({
+      status: "success",
+      message: result.message,
+    });
   } catch (error) {
     console.error("Error en DELETE /api/products/:pid:", error.message);
     res.status(500).json({
-      error: "Error interno del servidor",
-      details: error.message,
+      status: "error",
+      message: error.message,
     });
   }
 });

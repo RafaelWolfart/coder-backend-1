@@ -1,0 +1,127 @@
+<div class="product-detail-container">
+  <a href="/products" class="btn-back">← Volver al catálogo</a>
+
+  <div class="product-detail">
+    <div class="product-detail-image">
+      {{#if (getFirstImage product.thumbnails)}}
+        <img
+          src="{{getFirstImage product.thumbnails}}"
+          alt="{{product.title}}"
+          class="detail-img"
+        />
+      {{else}}
+        <div class="product-img-placeholder">Sin imagen</div>
+      {{/if}}
+    </div>
+
+    <div class="product-detail-info">
+      <h1 class="product-detail-title">{{product.title}}</h1>
+
+      <p class="product-detail-description">
+        {{product.description}}
+      </p>
+
+      <div class="product-detail-specs">
+        <div class="spec">
+          <label>Categoría:</label>
+          <span>{{product.category}}</span>
+        </div>
+        <div class="spec">
+          <label>Precio:</label>
+          <span class="price-large">{{formatPrice product.price}}</span>
+        </div>
+        <div class="spec">
+          <label>Stock disponible:</label>
+          <span
+            class="stock {{#if product.stock}}in-stock{{else}}out-of-stock{{/if}}"
+          >
+            {{product.stock}} unidades
+          </span>
+        </div>
+        <div class="spec">
+          <label>Código:</label>
+          <span>{{product.code}}</span>
+        </div>
+        <div class="spec">
+          <label>Estado:</label>
+          <span>{{#if product.status}}Disponible{{else}}No disponible{{/if}}</span>
+        </div>
+      </div>
+
+      <div class="product-detail-actions">
+        {{#if product.stock}}
+          <div class="quantity-selector">
+            <label for="quantity">Cantidad:</label>
+            <input
+              type="number"
+              id="quantity"
+              min="1"
+              max="{{product.stock}}"
+              value="1"
+              class="quantity-input"
+            />
+          </div>
+          <button class="btn-cart-large" onclick="addToCartDetail('{{product._id}}')">
+            Agregar al Carrito
+          </button>
+        {{else}}
+          <button class="btn-disabled" disabled>
+            Producto no disponible
+          </button>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+
+  <!-- Galería de imágenes -->
+  {{#if product.thumbnails}}
+    {{#if (gt product.thumbnails.length 1)}}
+      <div class="product-gallery">
+        <h3>Galería de imágenes</h3>
+        <div class="gallery-images">
+          {{#each product.thumbnails}}
+            <img src="{{this}}" alt="Imagen" class="gallery-img" />
+          {{/each}}
+        </div>
+      </div>
+    {{/if}}
+  {{/if}}
+</div>
+
+<script>
+  function addToCartDetail(productId) {
+    const quantity = parseInt(document.getElementById("quantity").value);
+
+    // Obtener o crear carrito
+    let cartId = localStorage.getItem("cartId");
+
+    if (!cartId) {
+      fetch("/api/carts", { method: "POST" })
+        .then((res) => res.json())
+        .then((data) => {
+          cartId = data.cart._id;
+          localStorage.setItem("cartId", cartId);
+          addProductToCart(cartId, productId, quantity);
+        });
+    } else {
+      addProductToCart(cartId, productId, quantity);
+    }
+  }
+
+  function addProductToCart(cartId, productId, quantity) {
+    fetch(`/api/carts/${cartId}/products/${productId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ quantity }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        alert(`${quantity} producto(s) agregado(s) al carrito`);
+        console.log("Carrito actualizado:", data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Error al agregar al carrito");
+      });
+  }
+</script>
