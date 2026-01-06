@@ -1,12 +1,12 @@
-# 🛒 Apple Store Backend — MongoDB Edition
+#  Apple Store Backend — MongoDB Edition
 
-## 📌 Descripción General
+##  Descripción General
 
 Tienda de productos **Apple** construida con **Node.js**, **Express** y **MongoDB**, diseñada para administrar productos y carritos de compra con persistencia en base de datos NoSQL. Incluye vistas dinámicas con **Handlebars** y actualizaciones en tiempo real con **Socket.IO**.
 
 ---
 
-## 🚀 Tecnologías Utilizadas
+##  Tecnologías Utilizadas
 
 - **Node.js** – Ejecuta la lógica del servidor.
 - **Express.js** – Manejo de rutas y middleware.
@@ -18,7 +18,7 @@ Tienda de productos **Apple** construida con **Node.js**, **Express** y **MongoD
 
 ---
 
-## 📁 Estructura del Proyecto
+##  Estructura del Proyecto
 
 ```
 server-backend/
@@ -69,9 +69,9 @@ server-backend/
 
 ---
 
-## 🔧 Funcionalidades Principales
+##  Funcionalidades Principales
 
-### 📦 Productos
+###  Productos
 
 El **ProductManager** implementa:
 
@@ -93,7 +93,7 @@ PUT    /api/products/:pid                         # Actualizar
 DELETE /api/products/:pid                         # Eliminar
 ```
 
-### 🛒 Carritos
+###  Carritos
 
 El **CartManager** permite:
 
@@ -117,14 +117,14 @@ DELETE /api/carts/:cid                            # Vaciar carrito
 PUT    /api/carts/:cid                            # Reemplazar productos
 ```
 
-### 🌐 Vistas Dinámicas
+###  Vistas Dinámicas
 
 - **`/products`** – Catálogo con paginación, filtros y ordenamiento.
 - **`/products/:pid`** – Detalle completo del producto.
 - **`/carts/:cid`** – Visualización del carrito con totales (subtotal, IVA, total).
 - **`/realtimeproducts`** – Panel tiempo real con WebSocket.
 
-### ⚡ Socket.IO en Tiempo Real
+###  Socket.IO en Tiempo Real
 
 ```javascript
 socket.on("crearProducto", async (data) => { ... })  // Crear producto
@@ -134,9 +134,9 @@ socket.on("updateProducts", (products) => { ... }) // Actualización broadcast
 
 ---
 
-## 📊 Ejemplos de Respuesta
+##  Ejemplos de Respuesta
 
-### ✅ Respuesta exitosa - Lista de productos paginada
+###  Respuesta exitosa - Lista de productos paginada
 
 ```json
 {
@@ -161,7 +161,7 @@ socket.on("updateProducts", (products) => { ... }) // Actualización broadcast
 }
 ```
 
-### ❌ Respuesta con error
+###  Respuesta con error
 
 ```json
 {
@@ -172,7 +172,7 @@ socket.on("updateProducts", (products) => { ... }) // Actualización broadcast
 
 ---
 
-## 🚀 Instalación y Uso
+##  Instalación y Uso
 
 ### 1. Instalar Dependencias
 
@@ -219,7 +219,7 @@ Accede a: **http://localhost:8080**
 
 ---
 
-## ✅ Validaciones Incluidas
+##  Validaciones Incluidas
 
 - Validación de campos obligatorios en modelos Mongoose.
 - Verificación de existencia de productos antes de agregarlos.
@@ -230,7 +230,7 @@ Accede a: **http://localhost:8080**
 
 ---
 
-## 📝 Notas Técnicas
+##  Notas Técnicas
 
 - **Puerto por defecto:** 8080
 - **Base de datos:** MongoDB (local o cloud).
@@ -242,7 +242,7 @@ Accede a: **http://localhost:8080**
 
 ---
 
-## 📦 Estructura de Datos
+##  Estructura de Datos
 
 ### Product
 
@@ -280,7 +280,7 @@ Accede a: **http://localhost:8080**
 
 ---
 
-## 🧪 Ejemplos de Uso
+##  Ejemplos de Uso
 
 ### Obtener productos con filtros
 
@@ -331,7 +331,7 @@ curl -X DELETE http://localhost:8080/api/carts/{cartId}
 
 ---
 
-## 🔄 Cambios Principales desde Versión Anterior
+##  Cambios Principales desde Versión Anterior
 
 ### Eliminado
 
@@ -357,7 +357,7 @@ curl -X DELETE http://localhost:8080/api/carts/{cartId}
 
 ---
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### "connect ECONNREFUSED" - MongoDB no está conectado
 
@@ -401,7 +401,7 @@ npm start
 
 ---
 
-## 📞 Soporte
+##  Soporte
 
 Para reportar bugs o sugerencias:
 
@@ -414,4 +414,4 @@ Para reportar bugs o sugerencias:
 
 **Versión:** 2.0.0 (MongoDB Edition)  
 **Última actualización:** Enero 2026  
-**Estado:** Producción ✅
+**Estado:** Producción 
