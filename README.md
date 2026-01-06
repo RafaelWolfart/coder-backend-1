@@ -1,176 +1,248 @@
-# Apple Store Backend - MongoDB Edition
+# 🛒 Apple Store Backend — MongoDB Edition
 
-## Migración a MongoDB Completada
+## 📌 Descripción General
 
-Este proyecto ha sido actualizado de almacenamiento JSON a **MongoDB** con Mongoose, manteniendo toda la funcionalidad existente.
+Tienda de productos **Apple** construida con **Node.js**, **Express** y **MongoDB**, diseñada para administrar productos y carritos de compra con persistencia en base de datos NoSQL. Incluye vistas dinámicas con **Handlebars** y actualizaciones en tiempo real con **Socket.IO**.
 
 ---
 
-## Características Principales
+## 🚀 Tecnologías Utilizadas
 
-### API REST con Paginación Profesional
+- **Node.js** – Ejecuta la lógica del servidor.
+- **Express.js** – Manejo de rutas y middleware.
+- **MongoDB** – Base de datos NoSQL escalable.
+- **Mongoose** – ODM para modelado de datos.
+- **Express-Handlebars** – Plantillas dinámicas en el servidor.
+- **Socket.IO** – Comunicación en tiempo real.
+- **Cors** – Permitir peticiones cross-origin.
+
+---
+
+## 📁 Estructura del Proyecto
 
 ```
-GET /api/products?limit=10&page=1&sort=asc&query=celular
+server-backend/
+├── data/
+│   ├── products.json        # Datos de productos (legacy)
+│   └── carts.json           # Datos de carritos (legacy)
+├── public/
+│   ├── js/
+│   │   └── realTimeProd.js  # Script WebSocket del cliente
+│   └── styles/
+│       └── style.css         # Estilos CSS
+├── scripts/
+│   ├── seed.js              # Poblador de BD
+│   └── verify-mongodb.js    # Verificación de conexión
+├── src/
+│   ├── app.js               # Configuración de Express
+│   ├── config/
+│   │   └── config.js        # Configuración de rutas
+│   ├── models/
+│   │   ├── Product.model.js # Schema Mongoose de productos
+│   │   └── Cart.model.js    # Schema Mongoose de carritos
+│   ├── managers/
+│   │   ├── ProductManager.js # Lógica CRUD de productos
+│   │   └── CartManager.js    # Lógica de carritos
+│   ├── routes/
+│   │   ├── index.js         # Enrutador principal
+│   │   ├── products.routes.js # API REST de productos
+│   │   ├── carts.routes.js   # API REST de carritos
+│   │   └── views.routes.js   # Rutas de vistas (Handlebars)
+│   └── views/
+│       ├── layouts/
+│       │   └── main.hbs      # Layout principal
+│       ├── pages/
+│       │   ├── products.hbs  # Catálogo
+│       │   ├── productDetail.hbs # Detalle de producto
+│       │   ├── cart.hbs      # Vista del carrito
+│       │   └── realTimeProd.hbs # Productos tiempo real
+│       └── partials/
+│           ├── navbar.hbs    # Barra de navegación
+│           ├── header.hbs    # Encabezado
+│           └── footer.hbs    # Pie de página
+├── .env                     # Variables de entorno
+├── .gitignore               # Archivos ignorados
+├── package.json             # Dependencias y scripts
+├── index.js                 # Punto de entrada
+└── README.md                # Documentación
 ```
 
-Respuesta:
+---
+
+## 🔧 Funcionalidades Principales
+
+### 📦 Productos
+
+El **ProductManager** implementa:
+
+- **CRUD completo** de productos en MongoDB.
+- **Paginación profesional** con metadatos (totalPages, prevPage, nextPage, links).
+- **Filtrado por categoría** (case-insensitive).
+- **Ordenamiento por precio** (ascendente/descendente).
+- **Búsqueda por disponibilidad** (status=true).
+- **Validación** de campos requeridos mediante Mongoose.
+- **Manejo de errores** con mensajes descriptivos.
+
+**Endpoints:**
+
+```
+GET    /api/products                              # Listar todos (paginado)
+GET    /api/products/:pid                         # Obtener por ID
+POST   /api/products                              # Crear producto
+PUT    /api/products/:pid                         # Actualizar
+DELETE /api/products/:pid                         # Eliminar
+```
+
+### 🛒 Carritos
+
+El **CartManager** permite:
+
+- **Crear carritos** nuevos sin productos.
+- **Obtener carritos** con productos poblados (populate).
+- **Añadir productos** a un carrito.
+- **Actualizar cantidades** de productos.
+- **Eliminar productos** del carrito.
+- **Vaciar carritos** completamente.
+- **Validación** de existencia de carritos y productos.
+
+**Endpoints:**
+
+```
+POST   /api/carts                                 # Crear carrito
+GET    /api/carts/:cid                            # Obtener carrito
+POST   /api/carts/:cid/products/:pid              # Agregar producto
+PUT    /api/carts/:cid/products/:pid              # Actualizar cantidad
+DELETE /api/carts/:cid/products/:pid              # Eliminar producto
+DELETE /api/carts/:cid                            # Vaciar carrito
+PUT    /api/carts/:cid                            # Reemplazar productos
+```
+
+### 🌐 Vistas Dinámicas
+
+- **`/products`** – Catálogo con paginación, filtros y ordenamiento.
+- **`/products/:pid`** – Detalle completo del producto.
+- **`/carts/:cid`** – Visualización del carrito con totales (subtotal, IVA, total).
+- **`/realtimeproducts`** – Panel tiempo real con WebSocket.
+
+### ⚡ Socket.IO en Tiempo Real
+
+```javascript
+socket.on("crearProducto", async (data) => { ... })  // Crear producto
+socket.on("eliminarProducto", async (productId) => { ... }) // Eliminar
+socket.on("updateProducts", (products) => { ... }) // Actualización broadcast
+```
+
+---
+
+## 📊 Ejemplos de Respuesta
+
+### ✅ Respuesta exitosa - Lista de productos paginada
 
 ```json
 {
   "status": "success",
-  "payload": [...],
+  "payload": [
+    {
+      "_id": "695be5daab0a8a65cdebc57c",
+      "title": "iPhone 15 Pro",
+      "description": "Smartphone Apple con chip A17 Pro",
+      "price": 1499,
+      "category": "celular",
+      "stock": 15,
+      "status": true
+    }
+  ],
   "totalPages": 2,
   "prevPage": null,
   "nextPage": 2,
   "page": 1,
   "hasPrevPage": false,
-  "hasNextPage": true,
-  "prevLink": null,
-  "nextLink": "/api/products?limit=10&page=2&sort=asc&query=celular"
+  "hasNextPage": true
 }
 ```
 
-### Gestión de Carritos
+### ❌ Respuesta con error
 
-- `POST /api/carts` - Crear carrito
-- `GET /api/carts/:cid` - Obtener carrito con productos poblados
-- `POST /api/carts/:cid/products/:pid` - Agregar producto
-- `PUT /api/carts/:cid/products/:pid` - Actualizar cantidad
-- `DELETE /api/carts/:cid/products/:pid` - Eliminar producto
-- `DELETE /api/carts/:cid` - Vaciar carrito
-- `PUT /api/carts/:cid` - Reemplazar productos
-
-### Vistas Modernas con Handlebars
-
-- `/products` - Catálogo con paginación, filtros y ordenamiento
-- `/products/:pid` - Detalle del producto
-- `/carts/:cid` - Visualización del carrito con totales
-- `/realtimeproducts` - Productos en tiempo real (WebSocket)
-
-### Socket.IO para Actualizaciones en Tiempo Real
-
-```javascript
-socket.on("crearProducto", async (data) => { ... })
-socket.on("eliminarProducto", async (productId) => { ... })
-socket.on("updateProducts", (products) => { ... })
+```json
+{
+  "status": "error",
+  "message": "Descripción del error"
+}
 ```
 
 ---
 
-## Instalación y Configuración
+## 🚀 Instalación y Uso
 
-### Instalar Dependencias
+### 1. Instalar Dependencias
 
 ```powershell
 npm install
 ```
 
-**Nuevas dependencias añadidas:**
+### 2. Configurar Variables de Entorno
 
-- `mongoose@^8.0.0` - ODM para MongoDB
-- `dotenv@^16.3.1` - Gestión de variables de entorno
-
-### Configurar Variables de Entorno
-
-Crear archivo `.env` en la raíz del proyecto:
+Crear archivo `.env` en la raíz:
 
 ```env
-MONGODB_URL=mongodb://localhost:27017/apple_store
+MONGO_URL=mongodb+srv://usuario:contraseña@cluster.mongodb.net/ProductAppleDB
 NODE_ENV=development
 PORT=8080
 ```
 
-**Opciones de MongoDB:**
+**Opciones de conexión:**
 
-- **Local:** `mongodb://localhost:27017/apple_store`
-- **MongoDB Atlas:** `mongodb+srv://usuario:contraseña@cluster.mongodb.net/apple_store`
+- **MongoDB Local:** `mongodb://localhost:27017/ProductAppleDB`
+- **MongoDB Atlas:** `mongodb+srv://user:pass@cluster.mongodb.net/ProductAppleDB`
 
-### Conectar MongoDB
-
-**Windows Local:**
-
-```powershell
-# Descargar MongoDB Community Edition
-# https://www.mongodb.com/try/download/community
-
-# Iniciar MongoDB en terminal separada
-mongod
-
-# Verificar conexión
-mongo
-```
-
-**Docker:**
-
-```powershell
-docker run -d -p 27017:27017 --name mongodb mongo
-```
-
-### Poblar Base de Datos
+### 3. Poblar Base de Datos
 
 ```powershell
 node scripts/seed.js
 ```
 
-Output esperado:
+Esto crea 5 productos de ejemplo y 1 carrito.
 
-```
- Conectado a MongoDB
-  Colecciones limpiadas
- 5 productos insertados
- Carrito de ejemplo creado
- Seed completado correctamente
+### 4. Verificar Conexión a MongoDB
+
+```powershell
+node scripts/verify-mongodb.js
 ```
 
-### Iniciar Servidor
+### 5. Iniciar Servidor
 
 ```powershell
 npm start
 ```
 
-Servidor correrá en `http://localhost:8080`
+Accede a: **http://localhost:8080**
 
 ---
 
-## Estructura del Proyecto
+## ✅ Validaciones Incluidas
 
-```
-src/
-├── models/
-│   ├── Product.js       # Mongoose schema para productos
-│   └── Cart.js          # Mongoose schema para carritos
-├── managers/
-│   ├── ProductManager.js # CRUD con paginación y filtros
-│   └── CartManager.js    # Gestión de carritos con populate()
-├── routes/
-│   ├── index.js         # Enrutador principal
-│   ├── products.routes.js # API REST de productos
-│   ├── carts.routes.js   # API REST de carritos
-│   └── views.routes.js   # Rutas de vistas (Handlebars)
-├── views/
-│   ├── layouts/main.hbs  # Layout principal
-│   ├── pages/
-│   │   ├── products.hbs  # Catálogo con paginación
-│   │   ├── productDetail.hbs # Detalle del producto
-│   │   ├── cart.hbs      # Visualización del carrito
-│   │   └── realTimeProd.hbs  # Productos en tiempo real
-│   └── partials/
-│       ├── header.hbs
-│       ├── navbar.hbs    # Navegación actualizada
-│       └── footer.hbs
-├── config/config.js      # Configuración de rutas
-└── app.js               # Configuración de Express y MongoDB
-
-scripts/
-└── seed.js              # Script para poblar base de datos
-
-index.js                 # Entrada principal con Socket.IO
-```
+- Validación de campos obligatorios en modelos Mongoose.
+- Verificación de existencia de productos antes de agregarlos.
+- Verificación de existencia de carritos.
+- Control de cantidades positivas.
+- Conversión automática de types (String → Number).
+- Mensajes de error descriptivos por validación.
 
 ---
 
-## Estructura de Datos
+## 📝 Notas Técnicas
+
+- **Puerto por defecto:** 8080
+- **Base de datos:** MongoDB (local o cloud).
+- **ODM:** Mongoose v8.21.0
+- **Estructura modular:** Rutas, managers, modelos y vistas separadas.
+- **Métodos asíncronos:** Flujo no bloqueante con async/await.
+- **CORS habilitado:** Permite peticiones desde cualquier origen.
+- **Handlebars helpers:** Funciones personalizadas para templates.
+
+---
+
+## 📦 Estructura de Datos
 
 ### Product
 
@@ -208,7 +280,7 @@ index.js                 # Entrada principal con Socket.IO
 
 ---
 
-## Ejemplos de Uso
+## 🧪 Ejemplos de Uso
 
 ### Obtener productos con filtros
 
@@ -229,7 +301,7 @@ curl "http://localhost:8080/api/products?limit=5"
 # 1. Crear carrito
 curl -X POST http://localhost:8080/api/carts
 
-# Respuesta: { "status": "success", "cart": { "_id": "..." } }
+# Respuesta: { "status": "success", "payload": { "_id": "..." } }
 
 # 2. Obtener ID del producto
 curl http://localhost:8080/api/products
@@ -259,13 +331,13 @@ curl -X DELETE http://localhost:8080/api/carts/{cartId}
 
 ---
 
-## Cambios Principales desde Versión Anterior
+## 🔄 Cambios Principales desde Versión Anterior
 
 ### Eliminado
 
 - Almacenamiento en JSON (`data/products.json`)
 - Métodos `saveProducts()` de ProductManager
-- IDs númericos secuenciales
+- IDs numéricos secuenciales
 
 ### Agregado
 
@@ -285,63 +357,7 @@ curl -X DELETE http://localhost:8080/api/carts/{cartId}
 
 ---
 
-## Testing
-
-### Endpoints de Productos
-
-```bash
-# GET /api/products - Listar con paginación
-# GET /api/products/:pid - Obtener uno
-# POST /api/products - Crear
-# PUT /api/products/:pid - Actualizar
-# DELETE /api/products/:pid - Eliminar
-```
-
-### Endpoints de Carritos
-
-```bash
-# POST /api/carts - Crear
-# GET /api/carts/:cid - Obtener
-# POST /api/carts/:cid/products/:pid - Agregar
-# PUT /api/carts/:cid/products/:pid - Actualizar cantidad
-# DELETE /api/carts/:cid/products/:pid - Eliminar producto
-# DELETE /api/carts/:cid - Vaciar carrito
-# PUT /api/carts/:cid - Reemplazar productos
-```
-
-### Vistas
-
-```bash
-GET http://localhost:8080/products              # Catálogo
-GET http://localhost:8080/products/[id]        # Detalle
-GET http://localhost:8080/carts/[cartId]       # Carrito
-GET http://localhost:8080/realtimeproducts     # Tiempo real
-```
-
----
-
-## Helpers Handlebars Disponibles
-
-- `formatPrice(number)` - Formatea como $X.XX
-- `eq(a, b)` - Comparación de igualdad
-- `multiply(a, b)` - Multiplicación
-- `gt(a, b)` - Mayor que
-- `range(start, end)` - Genera array de números
-- `getFirstImage(thumbnails)` - Obtiene primera imagen
-
-Ejemplo en plantilla:
-
-```handlebars
-{{formatPrice price}}
-{{#each (range 1 totalPages)}}
-  <a href="/products?page={{this}}">{{this}}</a>
-{{/each}}
-{{#if (gt stock 0)}} En stock {{/if}}
-```
-
----
-
-## Troubleshooting
+## 🐛 Troubleshooting
 
 ### "connect ECONNREFUSED" - MongoDB no está conectado
 
@@ -358,7 +374,7 @@ Get-Process mongod
 
 ```env
 # Verificar formato en .env
-MONGODB_URL=mongodb://localhost:27017/apple_store
+MONGO_URL=mongodb://localhost:27017/ProductAppleDB
 ```
 
 ### "Carrito no encontrado" - ID inválido
@@ -368,19 +384,34 @@ MONGODB_URL=mongodb://localhost:27017/apple_store
 curl http://localhost:8080/api/carts/507f1f77bcf86cd799439011
 ```
 
+### Los productos no se ven en el frontend
+
+```powershell
+# 1. Verificar que los datos están en MongoDB
+node scripts/verify-mongodb.js
+
+# 2. Poblar la BD si está vacía
+node scripts/seed.js
+
+# 3. Reiniciar el servidor
+npm start
+
+# 4. Limpiar caché del navegador: Ctrl+Shift+R
+```
+
 ---
 
-## Soporte
+## 📞 Soporte
 
 Para reportar bugs o sugerencias:
 
 1. Revisar logs en consola
 2. Verificar variables de entorno en `.env`
-3. Confirmar conexión a MongoDB: `mongo` o `mongosh`
+3. Confirmar conexión a MongoDB: `mongosh` o `mongo`
 4. Revisar estructura de payload enviado vs schema esperado
 
 ---
 
 **Versión:** 2.0.0 (MongoDB Edition)  
-**Última actualización:** 2024  
-**Estado:** Producción
+**Última actualización:** Enero 2026  
+**Estado:** Producción ✅
